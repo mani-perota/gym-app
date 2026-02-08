@@ -122,8 +122,29 @@ class ApiClient {
   }
 
   /** GET request */
-  async get<T>(endpoint: string, authenticated: boolean = false): Promise<T> {
-    return this.request<T>(endpoint, { method: "GET" }, authenticated);
+  async get<T>(
+    endpoint: string,
+    options?: { params?: Record<string, any>; authenticated?: boolean } | boolean
+  ): Promise<T> {
+    // Handle backward compatibility: if options is a boolean, it's the authenticated flag
+    const authenticated = typeof options === "boolean" ? options : (options?.authenticated ?? true);
+    
+    // Build query string if params are provided
+    let url = endpoint;
+    if (typeof options === "object" && options.params) {
+      const queryParams = new URLSearchParams();
+      Object.entries(options.params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          queryParams.append(key, String(value));
+        }
+      });
+      const queryString = queryParams.toString();
+      if (queryString) {
+        url = `${endpoint}?${queryString}`;
+      }
+    }
+    
+    return this.request<T>(url, { method: "GET" }, authenticated);
   }
 
   /** POST request */
