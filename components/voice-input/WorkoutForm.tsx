@@ -12,6 +12,8 @@ import type { Exercise } from "@/types";
 import { ExerciseSelector } from "./ExerciseSelector";
 import { SetTable } from "./SetTable";
 import { SetData } from "./SetRow";
+import { ExerciseCard } from "./ExerciseCard";
+import type { WorkoutSetWithName } from "@/types";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 const AnimatedView = Animated.createAnimatedComponent(View);
@@ -31,6 +33,12 @@ interface WorkoutFormProps {
   isFormValid: boolean;
   isSubmitting: boolean;
   tieneEjercicios: boolean;
+
+  // New props for Added Exercises List
+  addedExercises: WorkoutSetWithName[];
+  onEditExercise: (id: string) => void;
+  onRemoveExercise: (id: string) => void;
+  onAddNew: () => void;
 }
 
 export function WorkoutForm({
@@ -48,6 +56,10 @@ export function WorkoutForm({
   isFormValid,
   isSubmitting,
   tieneEjercicios,
+  addedExercises,
+  onEditExercise,
+  onRemoveExercise,
+  onAddNew,
 }: WorkoutFormProps) {
   const saveButtonScale = useSharedValue(1);
 
@@ -138,20 +150,93 @@ export function WorkoutForm({
       showsVerticalScrollIndicator={false}
     >
       <View className="w-full px-5">
-        {/* HEADER */}
-        <AnimatedView entering={FadeInDown.delay(50)} className="mb-6">
-          <Text
-            className="text-2xl"
-            style={{ fontFamily: "Nunito-ExtraBold", color: DARK_COLORS.text }}
-          >
-            Registrar Serie
-          </Text>
-          <Text
-            className="text-sm mt-1"
-            style={{ fontFamily: "Nunito-Regular", color: DARK_COLORS.textSecondary }}
-          >
-            Selecciona un ejercicio y registra tus series
-          </Text>
+        {/* HEADER / ADDED EXERCISES LIST */}
+        <AnimatedView entering={FadeInDown.delay(50)} className="mb-8">
+          {addedExercises.length > 0 ? (
+            <View>
+              <View className="flex-row items-center justify-between mb-3 px-1">
+                <View className="flex-row items-center">
+                  <View
+                    className="w-1 h-5 rounded-full mr-2"
+                    style={{ backgroundColor: DARK_COLORS.cyan }}
+                  />
+                  <Text
+                    className="text-base tracking-wide"
+                    style={{
+                      fontFamily: "Nunito-Bold",
+                      color: DARK_COLORS.text,
+                    }}
+                  >
+                    EJERCICIOS AGREGADOS
+                  </Text>
+                </View>
+                <Text
+                  className="text-xs"
+                  style={{ fontFamily: "Nunito-SemiBold", color: DARK_COLORS.textMuted }}
+                >
+                  {addedExercises.length} Total
+                </Text>
+              </View>
+
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ paddingRight: 20 }}
+                className="-mx-5 px-5"
+              >
+                {addedExercises.map((exercise, index) => (
+                  <AnimatedView
+                    key={exercise.id}
+                    entering={FadeInDown.delay(index * 100).springify()}
+                    className="mr-3"
+                  >
+                    <ExerciseCard
+                      id={exercise.id} // Assuming ExerciseCard might need id, though currently props don't show it but I'll add onEdit wrapper
+                      nombre={exercise.nombreEjercicio}
+                      grupoMuscular={exercise.ejercicio?.grupoMuscular ? capitalize(exercise.ejercicio.grupoMuscular) : "General"}
+                      series={exercise.series}
+                      onEdit={() => onEditExercise(exercise.id)}
+                    />
+                  </AnimatedView>
+                ))}
+
+                {/* Add New / Clear Card */}
+                <AnimatedView entering={FadeInDown.delay(addedExercises.length * 100).springify()}>
+                  <Pressable
+                    onPress={onAddNew}
+                    className="items-center justify-center border-dashed"
+                    style={{
+                      width: 60,
+                      height: '100%',
+                      minHeight: 100, // Match typical card height roughly
+                      backgroundColor: "rgba(255,255,255,0.02)",
+                      borderWidth: 1.5,
+                      borderColor: "rgba(255,255,255,0.15)",
+                      borderRadius: 12,
+                    }}
+                  >
+                    <Plus size={24} color={DARK_COLORS.cyan} />
+                  </Pressable>
+                </AnimatedView>
+              </ScrollView>
+            </View>
+          ) : (
+            <View className="mb-2">
+              {/* Minimal Header when no exercises */}
+              <Text
+                className="text-xl"
+                style={{ fontFamily: "Nunito-ExtraBold", color: DARK_COLORS.text }}
+              >
+                Nueva Rutina
+              </Text>
+              <Text
+                className="text-sm mt-1"
+                style={{ fontFamily: "Nunito-Regular", color: DARK_COLORS.textSecondary }}
+              >
+                Comienza agregando tu primer ejercicio
+              </Text>
+            </View>
+          )}
         </AnimatedView>
 
         {/* SELECTOR DE EJERCICIO */}
@@ -184,8 +269,7 @@ export function WorkoutForm({
         )}
 
         {/* BOTONES DE ACCIÓN */}
-        <AnimatedView entering={FadeInDown.delay(200)} className="mt-6 mb-8">
-          {/* Botón Guardar */}
+        <AnimatedView entering={FadeInDown.delay(200)} className="mt-8 mb-24">
           <AnimatedPressable
             onPress={onAgregar}
             onPressIn={handleSavePressIn}
@@ -196,33 +280,29 @@ export function WorkoutForm({
             <View
               className="flex-row items-center justify-center w-full"
               style={{
-                height: 56,
+                height: 54,
                 borderRadius: 16,
-                backgroundColor: isFormValid ? DARK_COLORS.cyan : DARK_COLORS.surface,
-                borderWidth: isFormValid ? 0 : 1,
-                borderColor: "rgba(255,255,255,0.08)",
+                backgroundColor: "transparent",
+                borderWidth: 1.5,
+                borderColor: isFormValid ? DARK_COLORS.cyan : "rgba(255,255,255,0.1)",
                 opacity: isFormValid ? 1 : 0.5,
-                shadowColor: isFormValid ? DARK_COLORS.cyan : "transparent",
-                shadowOffset: { width: 0, height: 4 },
-                shadowOpacity: isFormValid ? 0.3 : 0,
-                shadowRadius: 12,
-                elevation: isFormValid ? 6 : 0,
               }}
             >
               <Save
-                size={22}
-                color={isFormValid ? DARK_COLORS.bg : DARK_COLORS.textMuted}
+                size={20}
+                color={isFormValid ? DARK_COLORS.cyan : DARK_COLORS.textMuted}
                 strokeWidth={2.5}
               />
               <Text
-                className="ml-2 text-lg"
+                className="ml-2 text-base"
                 style={{
                   fontFamily: "Nunito-Bold",
-                  color: isFormValid ? DARK_COLORS.bg : DARK_COLORS.textMuted,
+                  color: isFormValid ? DARK_COLORS.cyan : DARK_COLORS.textMuted,
                   letterSpacing: 0.5,
                 }}
               >
-                Guardar Ejercicio
+                {/* Change text to clarify action */}
+                Agregar a la Rutina
               </Text>
             </View>
           </AnimatedPressable>

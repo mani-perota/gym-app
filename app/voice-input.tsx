@@ -16,7 +16,7 @@ import { useState, useCallback, useEffect } from "react";
 import { TextInput } from "react-native";
 import { WorkoutNameService } from "@/services/workout-name.service";
 
-import { WorkoutForm, WorkoutSummary } from "@/components/voice-input";
+import { WorkoutForm } from "@/components/voice-input";
 import { StatusOverlay } from "@/components/ui";
 import { useWorkouts } from "@/hooks";
 import { DARK_COLORS } from "@/constants/Colors";
@@ -37,7 +37,7 @@ export default function VoiceInputScreen() {
   const [ejercicioSeleccionado, setEjercicioSeleccionado] = useState<Exercise | null>(null);
   const [peso, setPeso] = useState("0");
   const [repeticiones, setRepeticiones] = useState("10");
-  const [series, setSeries] = useState("4");
+  const [series, setSeries] = useState("1");
 
   const [ejerciciosEnRutina, setEjerciciosEnRutina] = useState<WorkoutSetWithName[]>([]);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -45,6 +45,7 @@ export default function VoiceInputScreen() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [workoutName, setWorkoutName] = useState("");
   const [isNameEdited, setIsNameEdited] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   // --- AUTOMATIC NAME GENERATION ---
   useEffect(() => {
@@ -60,8 +61,25 @@ export default function VoiceInputScreen() {
     setEjercicioSeleccionado(null);
     setPeso("0");
     setRepeticiones("10");
-    setSeries("4");
+    setSeries("1");
+    setEditingId(null);
   }, []);
+
+  const handleAddNew = useCallback(() => {
+    resetForm();
+  }, [resetForm]);
+
+  const handleEditExercise = useCallback((id: string) => {
+    const exerciseToEdit = ejerciciosEnRutina.find(e => e.id === id);
+    if (exerciseToEdit) {
+      setEditingId(id);
+      setEjercicioSeleccionado(exerciseToEdit.ejercicio || null);
+      setEjercicioNombre(exerciseToEdit.nombreEjercicio);
+      setSeries(exerciseToEdit.series.toString());
+      setRepeticiones(exerciseToEdit.repeticiones.toString());
+      setPeso((exerciseToEdit.peso || 0).toString());
+    }
+  }, [ejerciciosEnRutina]);
 
   const handleAgregarEjercicio = useCallback(() => {
     const ejercicioId = ejercicioSeleccionado?._id || ejercicioSeleccionado?.id;
@@ -73,7 +91,7 @@ export default function VoiceInputScreen() {
     }
 
     const nuevoEjercicio: WorkoutSetWithName = {
-      id: `${Date.now()}`,
+      id: editingId || `${Date.now()}`,
       ejercicioId,
       nombreEjercicio: ejercicioSeleccionado.nombre,
       ejercicio: ejercicioSeleccionado,
@@ -85,11 +103,16 @@ export default function VoiceInputScreen() {
     setShowSuccess(true);
 
     setTimeout(() => {
-      setEjerciciosEnRutina((prev) => [...prev, nuevoEjercicio]);
+      setEjerciciosEnRutina((prev) => {
+        if (editingId) {
+          return prev.map(e => e.id === editingId ? nuevoEjercicio : e);
+        }
+        return [...prev, nuevoEjercicio];
+      });
       setShowSuccess(false);
       resetForm();
     }, 800);
-  }, [ejercicioSeleccionado, series, repeticiones, peso, resetForm]);
+  }, [ejercicioSeleccionado, series, repeticiones, peso, resetForm, editingId]);
 
   const handleRemoveEjercicio = useCallback((id: string) => {
     setEjerciciosEnRutina((prev) => prev.filter((e) => e.id !== id));
@@ -185,23 +208,7 @@ export default function VoiceInputScreen() {
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
           >
-            {/* SECCIÓN 1: RESUMEN */}
-            {tieneEjercicios && (
-              <AnimatedView
-                entering={FadeInUp.duration(400)}
-                className="px-6 mb-10"
-              >
-                <WorkoutSummary
-                  ejercicios={ejerciciosEnRutina}
-                  onRemoveEjercicio={handleRemoveEjercicio}
-                />
-                {/* Divisor sutil */}
-                <View
-                  className="h-px w-full mt-8 rounded-full"
-                  style={{ backgroundColor: DARK_COLORS.border }}
-                />
-              </AnimatedView>
-            )}
+            {/* SECCIÓN 1: RESUMEN REMOVED - Integrated in Form */}
 
             {/* SECCIÓN 2: FORMULARIO */}
             <View className="px-6">
@@ -220,6 +227,10 @@ export default function VoiceInputScreen() {
                 isFormValid={isFormValid}
                 isSubmitting={showSuccess}
                 tieneEjercicios={tieneEjercicios}
+                addedExercises={ejerciciosEnRutina}
+                onEditExercise={handleEditExercise}
+                onRemoveExercise={handleRemoveEjercicio}
+                onAddNew={handleAddNew}
               />
             </View>
           </ScrollView>
