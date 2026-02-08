@@ -53,7 +53,7 @@ export default function DiaryScreen() {
     const [monthlyData, setMonthlyData] = useState<any>(null);
 
     const formatDate = (date: Date) => {
-        return date.toLocaleDateString("en-US", {
+        return date.toLocaleDateString("es-ES", {
             weekday: "long",
             month: "short",
             day: "numeric",
@@ -169,7 +169,7 @@ export default function DiaryScreen() {
 
     const getHeaderDateText = () => {
         if (activeTab === "Mes") {
-            return currentDate.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+            return currentDate.toLocaleDateString("es-ES", { month: "long", year: "numeric" });
         }
         return formatDate(currentDate);
     }
@@ -236,7 +236,7 @@ export default function DiaryScreen() {
                     </TouchableOpacity>
                     <View className="items-center">
                         <Text className="text-xs font-medium text-gray-400 uppercase tracking-widest mb-0.5">
-                            {activeTab === "Mes" ? "MES" : (isToday(currentDate) ? "HOY" : currentDate.toLocaleDateString("en-US", { weekday: "long" }).toUpperCase())}
+                            {activeTab === "Mes" ? "MES" : (isToday(currentDate) ? "HOY" : currentDate.toLocaleDateString("es-ES", { weekday: "long" }).toUpperCase())}
                         </Text>
                         <Text className="text-lg font-bold text-white uppercase">{getHeaderDateText()}</Text>
                     </View>
@@ -285,7 +285,7 @@ export default function DiaryScreen() {
 
                                     <View className="flex-1 z-10">
                                         <Text className="text-gray-400 text-xs font-medium uppercase tracking-wider mb-1">
-                                            Total Volume
+                                            Volumen Total
                                         </Text>
                                         <View className="flex-row items-baseline gap-1">
                                             <Text
@@ -306,7 +306,7 @@ export default function DiaryScreen() {
 
                                     <View className="flex-1 items-end z-10">
                                         <Text className="text-gray-400 text-xs font-medium uppercase tracking-wider mb-1">
-                                            Total Series
+                                            Series Totales
                                         </Text>
                                         <View className="flex-row items-baseline justify-end gap-1">
                                             <Text
@@ -319,7 +319,7 @@ export default function DiaryScreen() {
                                             >
                                                 {summary.totalSets}
                                             </Text>
-                                            <Text className="text-sm font-medium text-gray-500">sets</Text>
+                                            <Text className="text-sm font-medium text-gray-500">series</Text>
                                         </View>
                                     </View>
                                 </LinearGradient>
@@ -375,7 +375,7 @@ export default function DiaryScreen() {
                                                         Reps
                                                     </Text>
                                                     <Text className="w-12 text-right text-[10px] font-semibold text-gray-500 uppercase pr-2">
-                                                        Done
+                                                        Hecho
                                                     </Text>
                                                 </View>
 
@@ -417,7 +417,7 @@ export default function DiaryScreen() {
                                                 {/* Add Set Button */}
                                                 <TouchableOpacity className="w-full py-2.5 border-t border-white/5 items-center bg-transparent active:bg-white/5">
                                                     <Text className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                                                        + Add Set
+                                                        + Agregar Serie
                                                     </Text>
                                                 </TouchableOpacity>
                                             </Animated.View>

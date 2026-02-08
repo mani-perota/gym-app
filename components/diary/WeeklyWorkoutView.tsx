@@ -13,7 +13,7 @@ interface WeeklyWorkoutViewProps {
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 
-// Mapping of muscle groups to colors (duplicated for now, should be centralized)
+// Mapeo de grupos musculares a colores (duplicado por ahora, debería centralizarse)
 const MUSCLE_COLORS: Record<string, string> = {
     pecho: DARK_COLORS.primaryNeon, // #00f2ff
     chest: DARK_COLORS.primaryNeon,
@@ -137,8 +137,8 @@ export default function WeeklyWorkoutView({
                                 <Animated.View
                                     entering={FadeInDown.delay(index * 50).springify()}
                                     className={`flex-row items-center p-4 rounded-2xl border ${isSelectedDay
-                                            ? "bg-card-dark border-primary-neon/50"
-                                            : "bg-card-dark border-white/5"
+                                        ? "bg-card-dark border-primary-neon/50"
+                                        : "bg-card-dark border-white/5"
                                         }`}
                                 >
                                     {/* Date Column */}
