@@ -1,0 +1,163 @@
+---
+description: Reglas principales del proyecto Gym App - React Native con Expo
+globs: ["**/*.tsx", "**/*.ts", "**/*.js", "**/*.json"]
+alwaysApply: true
+---
+
+# 🏋️ Gym App - Reglas del Proyecto
+
+## Stack Tecnológico
+
+Este proyecto utiliza el siguiente stack:
+
+- **Framework:** React Native con Expo (Managed Workflow SDK 52+)
+- **Estilos:** NativeWind v4 (TailwindCSS para React Native)
+- **Navegación:** Expo Router v4 (file-based routing)
+- **Gráficos:** @shopify/react-native-skia para gradientes, blur y sombras
+- **Animaciones:** react-native-reanimated v3
+- **Fuentes:** expo-google-fonts (Nunito, Quicksand)
+- **Iconos:** lucide-react-native
+- **TypeScript:** Estricto con interfaces definidas
+
+## Arquitectura de Componentes (Atomic Design)
+
+```
+src/
+├── app/                    # Expo Router - File-based routing
+│   ├── (tabs)/             # Tab navigator group
+│   │   ├── _layout.tsx     # Tab layout configuration
+│   │   ├── index.tsx       # Home screen
+│   │   ├── progress.tsx    # Progress screen
+│   │   ├── diary.tsx       # Diary screen
+│   │   └── settings.tsx    # Settings screen
+│   └── _layout.tsx         # Root layout
+├── components/
+│   ├── ui/                 # Componentes atómicos reutilizables
+│   │   ├── Button.tsx
+│   │   ├── Card.tsx
+│   │   ├── FabMic.tsx
+│   │   └── GradientBackground.tsx
+│   ├── home/               # Componentes específicos de Home
+│   │   ├── DailySummaryCard.tsx
+│   │   ├── RecentActivityList.tsx
+│   │   └── ActivityItem.tsx
+│   └── navigation/         # Componentes de navegación
+│       └── BottomTabBar.tsx
+├── hooks/                  # Custom hooks
+├── types/                  # TypeScript interfaces
+├── constants/              # Constantes (colores, spacing, etc.)
+└── utils/                  # Utilidades
+```
+
+## Convenciones de Código
+
+### Nomenclatura
+- **Componentes:** PascalCase (ej: `DailySummaryCard.tsx`)
+- **Hooks:** camelCase con prefijo "use" (ej: `useAnimatedPress.ts`)
+- **Tipos/Interfaces:** PascalCase con sufijo descriptivo (ej: `ActivityItemProps`)
+- **Constantes:** SCREAMING_SNAKE_CASE (ej: `PASTEL_COLORS`)
+
+### TypeScript
+- SIEMPRE usar interfaces para props de componentes
+- NUNCA usar `any` - usar `unknown` si es necesario
+- Exportar tipos desde `types/index.ts`
+
+```typescript
+// ✅ Correcto
+interface ActivityItemProps {
+  title: string;
+  subtitle: string;
+  icon: LucideIcon;
+  value: string;
+  timestamp: string;
+  accentColor: 'pink' | 'blue' | 'green';
+}
+
+// ❌ Incorrecto
+const ActivityItem = (props: any) => {...}
+```
+
+### Estilos con NativeWind
+- Usar clases de Tailwind definidas en `tailwind.config.js`
+- NO usar StyleSheet.create() a menos que sea estrictamente necesario
+- Colores personalizados prefijados con `pastel-`
+
+```typescript
+// ✅ Correcto
+<View className="bg-pastel-bg rounded-3xl p-6 shadow-soft">
+
+// ❌ Incorrecto - No mezclar estilos inline con NativeWind
+<View className="bg-white" style={{ padding: 20 }}>
+```
+
+### Skia para Efectos Visuales
+- Usar Canvas de Skia para:
+  - Gradientes complejos
+  - Efectos de blur/glassmorphism
+  - Sombras suaves personalizadas
+- NO usar `expo-blur` - preferir Skia para mejor rendimiento
+
+```typescript
+// ✅ Correcto - Blur con Skia
+import { Canvas, Rect, BlurMask } from '@shopify/react-native-skia';
+
+// ❌ Incorrecto
+import { BlurView } from 'expo-blur';
+```
+
+### Animaciones con Reanimated
+- Usar `useAnimatedStyle` para animaciones de estilo
+- Usar `withSpring` para animaciones naturales
+- Usar `useSharedValue` para valores animados
+
+```typescript
+// ✅ Correcto
+const scale = useSharedValue(1);
+const animatedStyle = useAnimatedStyle(() => ({
+  transform: [{ scale: scale.value }],
+}));
+```
+
+## Paleta de Colores (Pastel Theme)
+
+```javascript
+colors: {
+  "pastel-bg": "#FDFBF7",
+  "pastel-card": "#FFFFFF",
+  "pastel-text": "#4A4A6A",
+  "pastel-blue": "#E0E7FF",
+  "pastel-blue-dark": "#818CF8",
+  "pastel-pink": "#FCE7F3",
+  "pastel-pink-dark": "#F472B6",
+  "pastel-green": "#D1FAE5",
+  "pastel-green-dark": "#34D399",
+  "pastel-lavender": "#E9D5FF",
+  "pastel-peach": "#FFedd5",
+}
+```
+
+## Safe Areas
+
+SIEMPRE usar `SafeAreaView` de `react-native-safe-area-context`:
+
+```typescript
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+export default function Screen() {
+  return (
+    <SafeAreaView className="flex-1 bg-pastel-bg">
+      {/* contenido */}
+    </SafeAreaView>
+  );
+}
+```
+
+## Expo Router
+
+- Usar grupos de rutas con paréntesis: `(tabs)`, `(auth)`
+- Layouts con `_layout.tsx`
+- Navegación tipada con `useRouter`
+
+## Respuestas en Español
+
+Todas las respuestas, comentarios en código y documentación deben estar en español.

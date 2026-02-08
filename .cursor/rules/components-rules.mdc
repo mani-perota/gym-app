@@ -1,0 +1,130 @@
+---
+description: Reglas para creación de componentes React Native
+globs: ["**/components/**/*.tsx"]
+alwaysApply: false
+---
+
+# 📦 Reglas de Componentes
+
+## Estructura de un Componente
+
+Cada componente debe seguir esta estructura:
+
+```typescript
+// 1. Imports
+import React from 'react';
+import { View, Text, Pressable } from 'react-native';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+
+// 2. Types/Interfaces
+interface ComponentNameProps {
+  title: string;
+  onPress?: () => void;
+  variant?: 'primary' | 'secondary';
+}
+
+// 3. Constantes locales (si aplica)
+const ANIMATION_CONFIG = {
+  damping: 15,
+  stiffness: 150,
+};
+
+// 4. Componente
+export function ComponentName({ title, onPress, variant = 'primary' }: ComponentNameProps) {
+  // 4.1 Hooks
+  const scale = useSharedValue(1);
+  
+  // 4.2 Animated styles
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+  
+  // 4.3 Handlers
+  const handlePressIn = () => {
+    scale.value = withSpring(0.95, ANIMATION_CONFIG);
+  };
+  
+  // 4.4 Render
+  return (
+    <Animated.View style={animatedStyle}>
+      <Pressable onPressIn={handlePressIn} onPress={onPress}>
+        <Text className="text-pastel-text font-display">{title}</Text>
+      </Pressable>
+    </Animated.View>
+  );
+}
+```
+
+## Componentes UI Atómicos
+
+Los componentes en `components/ui/` deben ser:
+- Completamente reutilizables
+- Sin lógica de negocio
+- Bien tipados con variantes
+- Con valores por defecto sensatos
+
+## Componentes de Feature
+
+Los componentes en carpetas como `components/home/` pueden:
+- Tener lógica específica de la feature
+- Importar componentes UI atómicos
+- Conectarse a stores/context si es necesario
+
+## Props Pattern
+
+Usar object destructuring en los parámetros:
+
+```typescript
+// ✅ Correcto
+export function Card({ title, children, className }: CardProps) {
+
+// ❌ Incorrecto
+export function Card(props: CardProps) {
+  const { title } = props;
+```
+
+## Composición sobre Props
+
+Preferir children y slots sobre muchas props:
+
+```typescript
+// ✅ Correcto - Composable
+<Card>
+  <Card.Header>
+    <Card.Title>Título</Card.Title>
+  </Card.Header>
+  <Card.Content>{children}</Card.Content>
+</Card>
+
+// ❌ Evitar - Demasiadas props
+<Card 
+  title="Título" 
+  headerIcon={<Icon />}
+  footerButton={<Button />}
+  showDivider
+/>
+```
+
+## Exportaciones
+
+Usar named exports, NO default exports (excepto en páginas de Expo Router):
+
+```typescript
+// ✅ Correcto
+export function DailySummaryCard() {...}
+export function ActivityItem() {...}
+
+// ❌ Incorrecto
+export default function DailySummaryCard() {...}
+```
+
+## Barrel Exports
+
+Crear `index.ts` en cada carpeta de componentes:
+
+```typescript
+// components/home/index.ts
+export { DailySummaryCard } from './DailySummaryCard';
+export { RecentActivityList } from './RecentActivityList';
+export { ActivityItem } from './ActivityItem';
+```

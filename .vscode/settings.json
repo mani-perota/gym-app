@@ -1,0 +1,12 @@
+{
+    "files.exclude": {
+        "**/.agent": true,
+        "**/.agents": true,
+        "**/.gemini": true,
+        "**/.claude": true,
+        "**/.cline": true,
+        "**/.commandcode": true,
+        "**/.windsurf": true,
+        "**/.zencoder": true,
+    }
+}
